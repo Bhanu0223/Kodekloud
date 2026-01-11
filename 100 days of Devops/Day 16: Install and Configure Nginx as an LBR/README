@@ -1,0 +1,101 @@
+######################################################################################################################################################
+Task: Day by day traffic is increasing on one of the websites managed by the Nautilus production support team. 
+Therefore, the team has observed a degradation in website performance. 
+Following discussions about this issue, the team has decided to deploy this application on a high availability stack i.e on Nautilus infra in Stratos DC. They started the migration last month and it is almost done, as only the LBR server configuration is pending.
+Configure LBR server as per the information given below:
+
+
+a. Install nginx on LBR (load balancer) server.
+
+
+b. Configure load-balancing with the an http context making use of all App Servers. 
+Ensure that you update only the main Nginx configuration file located at /etc/nginx/nginx.conf.
+
+
+c. Make sure you do not update the apache port that is already defined in the apache configuration on all app servers,
+also make sure apache service is up and running on all app servers.
+
+
+d. Once done, you can access the website using StaticApp button on the top bar.
+
+###############################################################################################################################################
+Solution:
+🔹 Step 1: Make sure Apache is running on all App Servers
+
+Login to each App Server and verify:
+
+sudo systemctl status httpd
+
+
+If not running:
+
+sudo systemctl start httpd
+sudo systemctl enable httpd
+
+
+Check the Apache port (do not change it):
+
+grep -i "^Listen" /etc/httpd/conf/httpd.conf
+
+
+Example output:
+
+Listen 8080
+
+
+Note this port — you will use it in the LBR config.
+
+🔹 Step 2: Install Nginx on LBR server
+
+On LBR server:
+
+sudo yum install -y nginx
+sudo systemctl start nginx
+sudo systemctl enable nginx
+
+🔹 Step 3: Configure Load Balancing
+
+Edit the main config file only:
+
+sudo vi /etc/nginx/nginx.conf
+
+
+Inside the http { ... } block, add:
+
+upstream app_servers {
+    server app-server-1:8080;
+    server app-server-2:8080;
+    server app-server-3:8080;
+}
+
+server {
+    listen 80;
+
+    location / {
+        proxy_pass http://app_servers;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+
+
+Replace:
+
+app-server-1, app-server-2, app-server-3 with actual hostnames or IPs
+
+8080 with the exact Apache port you found earlier
+
+🔹 Step 4: Test and restart Nginx
+sudo nginx -t
+sudo systemctl restart nginx
+
+🔹 Step 5: Validate
+
+From the jump host or using the StaticApp button:
+
+curl http://<LBR-IP>
+
+
+You should see the website load successfully, and traffic will now be distributed across all App Servers.
+
+###############################################################################################################################################
