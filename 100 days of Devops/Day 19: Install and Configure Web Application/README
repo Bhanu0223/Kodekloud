@@ -1,0 +1,74 @@
+xFusionCorp Industries is planning to host two static websites on their infra in Stratos Datacenter. The development of these websites is still in-progress, but we want to get the servers ready. Please perform the following steps to accomplish the task:
+
+
+a. Install httpd package and dependencies on app server 1.
+
+
+b. Apache should serve on port 8085.
+
+
+c. There are two website's backups /home/thor/ecommerce and /home/thor/apps on jump_host. Set them up on Apache in a way that ecommerce should work on the link http://localhost:8085/ecommerce/ and apps should work on link http://localhost:8085/apps/ on the mentioned app server.
+
+
+d. Once configured you should be able to access the website using curl command on the respective app server, i.e curl http://localhost:8085/ecommerce/ and curl http://localhost:8085/apps/
+
+
+########################################################
+solution:1️⃣ Install Apache
+sudo yum install -y httpd
+
+2️⃣ Configure Apache to listen on port 8085
+
+Edit the config:
+
+sudo vi /etc/httpd/conf/httpd.conf
+
+
+Find:
+
+Listen 80
+
+
+Change to:
+
+Listen 8085
+
+3️⃣ Copy website backups from jump host
+
+From App Server 1, copy both directories:
+
+scp -r thor@jump_host:/home/thor/ecommerce /var/www/html/
+scp -r thor@jump_host:/home/thor/apps /var/www/html/
+
+
+Set proper ownership:
+
+sudo chown -R apache:apache /var/www/html/ecommerce /var/www/html/apps
+
+4️⃣ Start and enable Apache
+sudo systemctl start httpd
+sudo systemctl enable httpd
+
+
+Verify it is listening:
+
+ss -lntp | grep 8085
+
+5️⃣ Test locally on App Server 1
+curl http://localhost:8085/ecommerce/
+curl http://localhost:8085/apps/
+
+
+You should see the content from each respective site.
+
+Result
+
+Apache installed
+
+Running on port 8085
+
+ecommerce available at http://localhost:8085/ecommerce/
+
+apps available at http://localhost:8085/apps/
+
+Verified using curl
