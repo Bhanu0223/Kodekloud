@@ -1,0 +1,41 @@
+---
+- name: Secure Apache port 5004 using iptables
+  hosts: apps
+  become: yes
+  vars:
+    apache_port: 5004
+    lbr_ip: 172.16.238.14
+
+  tasks:
+    - name: Install iptables and required services
+      yum:
+        name:
+          - iptables
+          - iptables-services
+        state: present
+
+    - name: Enable and start iptables service
+      service:
+        name: iptables
+        state: started
+        enabled: yes
+
+    - name: Allow port 5004 from Load Balancer only
+      iptables:
+        chain: INPUT
+        protocol: tcp
+        source: "{{ lbr_ip }}"
+        destination_port: "{{ apache_port }}"
+        jump: ACCEPT
+        state: present
+
+    - name: Block port 5004 from everyone else
+      iptables:
+        chain: INPUT
+        protocol: tcp
+        destination_port: "{{ apache_port }}"
+        jump: DROP
+        state: present
+
+    - name: Save iptables rules to persist after reboot
+      command: service iptables save
