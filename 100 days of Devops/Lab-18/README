@@ -32,3 +32,39 @@ iptables installed on all app servers
 ✔ Rules persist after reboot
 ######### ######### ######### ######### ######### ######### ######### ######### ######### ######### ######### ######### ######### ######### ######### 
 
+
+
+Manual:
+
+Add Iptables:
+
+iptables -I INPUT -p tcp -s 172.16.238.14 --dport 6300 -j ACCEPT
+iptables -A INPUT -p tcp --dport 6300 -j DROP
+
+To See:
+sudo iptables-save | sudo tee /etc/sysconfig/iptables
+or 
+sudo iptables -L INPUT -n -v --line-numbers
+
+to check connection:
+nc -zv 172.16.238.12 3003
+
+This command uses netcat (nc) to test whether a TCP port is open on a remote host.
+
+nc → Netcat utility (network tester)
+
+-z → “Zero I/O” mode
+
+Don’t send data; just check if the port is open
+
+-v → Verbose output (shows clear success/failure message)
+
+172.16.238.12 → Target host (your server)
+
+3003 → Target port
+
+
+
+
+
+
