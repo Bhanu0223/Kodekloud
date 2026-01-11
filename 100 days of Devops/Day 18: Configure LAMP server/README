@@ -1,0 +1,153 @@
+################################################################################################################################################################
+xFusionCorp Industries is planning to host a WordPress website on their infra in Stratos Datacenter.
+They have already done infrastructure configuration—for example, on the storage server they already have a shared directory /vaw/www/html that is mounted on each app host under /var/www/html directory.
+Please perform the following steps to accomplish the task:
+
+
+a. Install httpd, php and its dependencies on all app hosts.
+
+
+b. Apache should serve on port 6200 within the apps.
+
+
+c. Install/Configure MariaDB server on DB Server.
+
+
+d. Create a database named kodekloud_db8 and create a database user named kodekloud_cap identified as password ksH85UJjhb. 
+Further make sure this newly created user is able to perform all operation on the database you created.
+
+
+e. Finally you should be able to access the website on LBR link, by clicking on the App button on the top bar. 
+You should see a message like App is able to connect to the database using user kodekloud_cap
+########################################################################################################################################
+
+You will configure App Servers, DB Server, and then verify via LBR.
+
+The shared directory /vaw/www/html is already mounted on all App hosts as /var/www/html.
+
+🔹 A & B) On ALL App Servers
+
+Install Apache, PHP, and dependencies, and make Apache listen on port 6200.
+
+sudo yum install -y httpd php php-mysqlnd php-gd php-xml php-mbstring
+
+
+Edit Apache port:
+
+sudo vi /etc/httpd/conf/httpd.conf
+
+
+Change:
+
+Listen 80
+
+
+to:
+
+Listen 6200
+
+
+Ensure DocumentRoot is correct (default is fine):
+
+DocumentRoot "/var/www/html"
+
+
+Start and enable Apache:
+
+sudo systemctl start httpd
+sudo systemctl enable httpd
+
+
+Verify:
+
+ss -lntp | grep 6200
+
+🔹 C) On DB Server – Install & Configure MariaDB
+sudo yum install -y mariadb-server
+sudo systemctl start mariadb
+sudo systemctl enable mariadb
+
+
+Secure (optional if lab allows):
+
+sudo mysql
+
+
+Inside MariaDB shell:
+
+CREATE DATABASE kodekloud_db8;
+CREATE USER 'kodekloud_cap'@'%' IDENTIFIED BY 'ksH85UJjhb';
+GRANT ALL PRIVILEGES ON kodekloud_db8.* TO 'kodekloud_cap'@'%';
+FLUSH PRIVILEGES;
+EXIT;
+
+
+Allow remote connections (if required by lab):
+
+sudo vi /etc/my.cnf.d/mariadb-server.cnf
+
+
+Set:
+
+bind-address=0.0.0.0
+
+
+Restart MariaDB:
+
+sudo systemctl restart mariadb
+
+🔹 D) On ANY App Server – Create Test App File
+
+Create a simple PHP file in the shared web root:
+
+sudo vi /var/www/html/index.php
+
+
+Add:
+
+<?php
+$host = "db-server";
+$user = "kodekloud_cap";
+$pass = "ksH85UJjhb";
+$db   = "kodekloud_db8";
+
+$conn = new mysqli($host, $user, $pass, $db);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+echo "App is able to connect to the database using user kodekloud_cap";
+?>
+
+
+Replace db-server with the actual DB server hostname if different.
+
+Set permissions:
+
+sudo chown apache:apache /var/www/html/index.php
+
+🔹 E) LBR Verification
+
+Ensure LBR is already configured to balance traffic to App Servers on port 6200.
+
+Click the App button on the top bar.
+
+You should see:
+
+App is able to connect to the database using user kodekloud_cap
+
+Result
+
+Apache + PHP on all App servers
+
+Apache listening on port 6200
+
+MariaDB running on DB server
+
+Database kodekloud_db8 with user kodekloud_cap
+
+App accessible via LBR and successfully connects to DB 🚀
+
+
+#########################################################################################################################################
