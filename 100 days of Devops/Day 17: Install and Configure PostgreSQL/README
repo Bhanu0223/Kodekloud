@@ -1,0 +1,68 @@
+###################################################################################################################################################
+The Nautilus application development team has shared that they are planning to deploy one newly developed application on Nautilus infra in Stratos DC. 
+The application uses PostgreSQL database, so as a pre-requisite we need to set up PostgreSQL database server as per requirements shared below:
+
+
+PostgreSQL database server is already installed on the Nautilus database server.
+
+
+a. Create a database user kodekloud_joy and set its password to LQfKeWWxWD.
+
+
+b. Create a database kodekloud_db7 and grant full permissions to user kodekloud_joy on this database.
+
+
+Note: Please do not try to restart PostgreSQL server service.
+###################################################################################################################################################
+
+
+Since PostgreSQL is already installed and running on the Nautilus database server, we only need to create the user and database, and assign privileges.
+(Do not restart the PostgreSQL service.)
+
+Login to the Nautilus DB Server and switch to the postgres user:
+
+sudo -i -u postgres
+
+
+Open the PostgreSQL shell:
+
+psql
+
+
+Now run the following SQL commands:
+
+a) Create the database user
+CREATE USER kodekloud_joy WITH PASSWORD 'LQfKeWWxWD';
+
+b) Create the database
+CREATE DATABASE kodekloud_db7;
+
+c) Grant full permissions on the database to the user
+GRANT ALL PRIVILEGES ON DATABASE kodekloud_db7 TO kodekloud_joy;
+
+
+Exit PostgreSQL:
+
+\q
+
+
+Exit from postgres user:
+
+exit
+
+Verification (Optional)
+psql -U kodekloud_joy -d kodekloud_db7 -h localhost
+
+
+If it connects successfully, the setup is correct.
+
+✔ User kodekloud_joy created
+✔ Database kodekloud_db7 created
+✔ Full access granted
+✔ PostgreSQL service untouched
+
+
+
+
+
+###################################################################################################################################################
