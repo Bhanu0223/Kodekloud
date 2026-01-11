@@ -25,5 +25,10 @@ mkdir -p ~/iptables-security
 cd ~/iptables-securit
 
 ansible-playbook -i inventory.ini secure_apache_iptables.yml
+
+iptables installed on all app servers
+✔ Port 5004 allowed only from 172.16.238.14
+✔ All other access to port 5004 blocked
+✔ Rules persist after reboot
 ######### ######### ######### ######### ######### ######### ######### ######### ######### ######### ######### ######### ######### ######### ######### 
 
