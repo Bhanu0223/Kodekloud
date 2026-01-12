@@ -1,0 +1,42 @@
+The Nautilus development team has provided requirements to the DevOps team for a new application development project, specifically requesting the establishment of a Git repository. Follow the instructions below to create the Git repository on the Storage server in the Stratos DC:
+
+
+Utilize yum to install the git package on the Storage Server.
+
+
+Create a bare repository named /opt/blog.git (ensure exact name usage).
+
+
+#################
+
+Perform these steps on the Storage Server.
+
+1️⃣ Install Git using yum
+sudo yum install -y git
+
+
+Verify installation:
+
+git --version
+
+2️⃣ Create the bare repository
+
+Create the directory and initialize it as a bare Git repository:
+
+sudo mkdir -p /opt/blog.git
+sudo git init --bare /opt/blog.git
+
+
+Verify:
+
+ls /opt/blog.git
+
+
+You should see files like:
+
+HEAD  config  description  hooks  info  objects  refs
+
+
+✔ Git installed
+✔ Bare repository created at /opt/blog.git
+✔ Ready for developers to push code
