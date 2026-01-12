@@ -1,0 +1,31 @@
+In the Stratos Datacenter, our Storage server is encountering performance degradation due to excessive processes held by the nfsuser user. To mitigate this issue, we need to enforce limitations on its maximum processes. Please set the maximum process limits as specified below:
+
+
+a. Set the soft limit to 1025
+
+
+b. Set the hard limit to 2026
+#####################################
+
+sol:
+
+On the Storage Server, edit the limits configuration:
+
+sudo vi /etc/security/limits.conf
+
+
+Add these lines at the end:
+
+nfsuser   soft   nproc   1025
+nfsuser   hard   nproc   2026
+
+
+Explanation (short):
+
+nfsuser → user to limit
+
+soft nproc 1025 → warning limit (can be exceeded temporarily)
+
+hard nproc 2026 → absolute maximum processes
+
+These limits will take effect on the next login session of nfsuser.
