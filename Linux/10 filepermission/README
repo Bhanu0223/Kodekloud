@@ -67,3 +67,57 @@ Others have read-only access
 mark has no permissions
 
 garrett has read-only permission
+
+
+########################
+Configure crontab access on App Server 1 as follows: Allow crontab access to rose user while denying access to the eric user.
+
+sol: To configure crontab access on App Server 1 so that:
+
+✅ rose → allowed
+
+❌ eric → denied
+
+Linux uses /etc/cron.allow and /etc/cron.deny for this.
+
+✅ Correct & Recommended Method
+1️⃣ Login to App Server 1
+ssh user@app_server_1
+
+2️⃣ Create /etc/cron.allow and allow rose
+echo "rose" | sudo tee /etc/cron.allow
+
+3️⃣ Create /etc/cron.deny and deny eric
+echo "eric" | sudo tee /etc/cron.deny
+
+4️⃣ Set correct permissions (important)
+sudo chown root:root /etc/cron.allow /etc/cron.deny
+sudo chmod 600 /etc/cron.allow /etc/cron.deny
+
+🔍 How It Works (Important Rule)
+
+If /etc/cron.allow exists → ONLY users listed can use crontab
+
+/etc/cron.deny is checked only if cron.allow does NOT exist
+
+Root can always use crontab
+
+In your case:
+
+rose is explicitly allowed ✅
+
+eric is blocked ❌
+
+🧪 Verification (Optional)
+Switch user and test
+su - rose
+crontab -e     # should work
+
+su - eric
+crontab -e     # should be denied
+
+✅ Final State Summary
+User	Crontab Access
+rose	✅ Allowed
+eric	❌ Denied
+
