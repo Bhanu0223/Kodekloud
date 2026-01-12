@@ -1,0 +1,26 @@
+With the installation of new tools on the app servers within the Stratos Datacenter, certain functionalities now necessitate graphical user interface (GUI) access.
+
+
+Adjust the default runlevel on all App servers in Stratos Datacenter to enable GUI booting by default. It's imperative not to initiate a server reboot after completing this task.
+
+
+
+#########################
+On each App Server, set the system to boot into GUI mode by default:
+
+sudo systemctl set-default graphical.target
+
+
+This changes the default runlevel to graphical (GUI) without rebooting the server.
+
+You can verify the change with:
+
+systemctl get-default
+
+
+It should return:
+
+graphical.target
+
+
+Do not reboot the servers after this, as per the requirement.
