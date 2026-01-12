@@ -1,0 +1,69 @@
+After conducting a security audit within the Stratos DC, the Nautilus security team discovered misconfigured permissions on critical files. To address this, corrective actions are being taken by the production support team. Specifically, the file named /etc/hosts on Nautilus App 1 server requires adjustments to its Access Control Lists (ACLs) as follows:
+
+
+1. The file's user owner and group owner should be set to root.
+
+2. Others should possess read only permissions on the file.
+
+3. User mark must not have any permissions on the file.
+
+4. User garrett should be granted read only permission on the file.
+
+
+
+#################
+
+First, make sure the base ownership and permissions are correct.
+
+sudo chown root:root /etc/hosts
+sudo chmod 644 /etc/hosts
+
+
+This ensures:
+
+Owner = root
+
+Group = root
+
+Permissions = rw-r--r--
+(Owner: read/write, Group: read, Others: read)
+
+Now apply the ACL rules:
+
+sudo setfacl -m u:mark:0 /etc/hosts
+sudo setfacl -m u:garrett:r /etc/hosts
+
+
+What these do:
+
+u:mark:0 → user mark gets no permissions
+
+u:garrett:r → user garrett gets read-only permission
+
+Verify the result:
+
+getfacl /etc/hosts
+
+
+You should see entries similar to:
+
+# file: etc/hosts
+# owner: root
+# group: root
+user::rw-
+user:mark:---
+user:garrett:r--
+group::r--
+mask::r--
+other::r--
+
+
+This satisfies all the requirements:
+
+Owner and group are root
+
+Others have read-only access
+
+mark has no permissions
+
+garrett has read-only permission
