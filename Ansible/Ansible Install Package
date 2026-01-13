@@ -1,0 +1,44 @@
+Task:
+Create an inventory file /home/thor/playbook/inventory on jump host and add all app servers in it.
+
+
+Create an Ansible playbook /home/thor/playbook/playbook.yml to install samba package on all  app servers using Ansible yum module.
+
+
+Make sure user thor should be able to run the playbook on jump host.
+
+Note: Validation will try to run playbook using command ansible-playbook -i inventory playbook.yml so please make sure playbook works this way, without passing any extra arguments.
+
+
+###########
+sol: 
+1. mkdir -p /home/thor/playbook
+
+2. Create /home/thor/playbook/inventory with the following content:
+stapp01 ansible_host=172.16.238.10 ansible_user=tony ansible_ssh_pass=Ir0nM@n
+stapp02 ansible_host=172.16.238.11 ansible_user=steve ansible_ssh_pass=Am3ric@
+stapp03 ansible_host=172.16.238.12 ansible_user=banner ansible_ssh_pass=BigGr33n
+
+3. Create /home/thor/playbook/playbook.yml:
+---
+- name: Install Samba on all app servers
+  hosts: app_servers
+  become: yes
+  tasks:
+    - name: Install samba package
+      yum:
+        name: samba
+        state: present
+
+
+4.Set correct ownership and permissions on the jump host:
+chown -R thor:thor /home/thor/playbook
+chmod 755 /home/thor
+chmod 755 /home/thor/playbook
+chmod 644 /home/thor/playbook/inventory
+chmod 644 /home/thor/playbook/playbook.yml
+
+5. RUN
+cd /home/thor/playbook
+ansible-playbook -i inventory playbook.yml
+
