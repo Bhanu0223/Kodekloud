@@ -81,3 +81,66 @@ chmod 644 /home/thor/playbook/playbook.yml
 cd /home/thor/playbook
 ansible-playbook -i inventory playbook.yml
 
+
+#####################
+Since the ZIP file exists only on the jump host (/usr/src/devops/xfusion.zip), the playbook must:
+
+Copy the ZIP file to each app server
+
+Unzip it into /opt/devops/ on each app server
+
+Set ownership based on the server
+
+Ensure extracted files have permission 0744
+
+Create /home/thor/ansible/playbook.yml with this content:
+
+---
+- name: Unzip xfusion archive on all app servers
+  hosts: all
+  become: yes
+  tasks:
+
+    - name: Ensure destination directory exists
+      file:
+        path: /opt/devops
+        state: directory
+        mode: '0755'
+
+    - name: Copy xfusion.zip to app servers
+      copy:
+        src: /usr/src/devops/xfusion.zip
+        dest: /tmp/xfusion.zip
+        mode: '0644'
+
+    - name: Unzip archive on App Server 1
+      unarchive:
+        src: /tmp/xfusion.zip
+        dest: /opt/devops
+        remote_src: yes
+        owner: tony
+        group: tony
+        mode: '0744'
+      when: inventory_hostname == "stapp01"
+
+    - name: Unzip archive on App Server 2
+      unarchive:
+        src: /tmp/xfusion.zip
+        dest: /opt/devops
+        remote_src: yes
+        owner: steve
+        group: steve
+        mode: '0744'
+      when: inventory_hostname == "stapp02"
+
+    - name: Unzip archive on App Server 3
+      unarchive:
+        src: /tmp/xfusion.zip
+        dest: /opt/devops
+        remote_src: yes
+        owner: banner
+        group: banner
+        mode: '0744'
+      when: inventory_hostname == "stapp03"
+
+
