@@ -142,5 +142,45 @@ Create /home/thor/ansible/playbook.yml with this content:
         group: banner
         mode: '0744'
       when: inventory_hostname == "stapp03"
+#########################
+---
+- name: Install and configure httpd on all app servers
+  hosts: all
+  become: yes
+  tasks:
 
+    - name: Install httpd package
+      yum:
+        name: httpd
+        state: present
+
+    - name: Ensure httpd service is running and enabled
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: Add sample content to index.html
+      blockinfile:
+        path: /var/www/html/index.html
+        create: yes
+        block: |
+          Welcome to XfusionCorp!
+
+          This is  Nautilus sample file, created using Ansible!
+
+          Please do not modify this file manually!
+
+    - name: Set ownership on index.html
+      file:
+        path: /var/www/html/index.html
+        owner: apache
+        group: apache
+
+    - name: Set permissions on index.html
+      file:
+        path: /var/www/html/index.html
+        mode: '0777'
+
+###################################
 
