@@ -19,6 +19,45 @@ stapp01 ansible_host=172.16.238.10 ansible_user=tony ansible_ssh_pass=Ir0nM@n
 stapp02 ansible_host=172.16.238.11 ansible_user=steve ansible_ssh_pass=Am3ric@
 stapp03 ansible_host=172.16.238.12 ansible_user=banner ansible_ssh_pass=BigGr33n
 
+if you get this error:fatal: [stapp02]: FAILED! => {"changed": false, "module_stderr": "Shared connection to 172.16.238.11 closed.\r\n", "module_stdout": "", "msg": "MODULE FAILURE\nSee stdout/stderr for the exact error", "rc": 137}
+
+use this: sol for rc: 137 with “Shared connection closed”
+[app_servers]
+stapp01 ansible_host=172.16.238.10 ansible_user=tony ansible_ssh_pass=Ir0nM@n ansible_become_pass=Ir0nM@n
+stapp02 ansible_host=172.16.238.11 ansible_user=steve ansible_ssh_pass=Am3ric@ ansible_become_pass=Am3ric@
+stapp03 ansible_host=172.16.238.12 ansible_user=banner ansible_ssh_pass=BigGr33n ansible_become_pass=BigGr33n
+
+Passwordless or ssh keys:
+ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N "" ----> This creates:
+
+~/.ssh/id_rsa (private key)
+~/.ssh/id_rsa.pub (public key)
+
+
+ssh-copy-id tony@172.16.238.10
+ssh-copy-id steve@172.16.238.11
+ssh-copy-id banner@172.16.238.12
+
+Inventory file: 
+[app_servers]
+stapp01 ansible_host=172.16.238.10 ansible_user=tony
+stapp02 ansible_host=172.16.238.11 ansible_user=steve
+stapp03 ansible_host=172.16.238.12 ansible_user=banner
+
+If sudo still asks for a password, you can either:
+Configure passwordless sudo on the app servers, or
+Add --ask-become-pass when running the playbook
+
+Configure passwordless sudo on the app servers:
+On each server:
+sudo visudo -f /etc/sudoers.d/tony
+Add:
+tony ALL=(ALL) NOPASSWD: ALL
+
+
+
+
+
 3. Create /home/thor/playbook/playbook.yml:
 ---
 - name: Install Samba on all app servers
